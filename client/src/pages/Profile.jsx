@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import {
   getDownloadURL,
   getStorage,
@@ -29,8 +29,8 @@ export default function Profile() {
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  const [showListingError, setShowListingError] = useState(false)
-  const [userListings, setUserListings] = useState([])
+  const [showListingError, setShowListingError] = useState(false);
+  const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
     if (file) {
@@ -127,39 +127,41 @@ export default function Profile() {
     }
   };
 
-  const handleShowListings = async()=> {
-      try {
-        setShowListingError(false)
-        const res = await fetch(`/api/user/listings/${currentUser._id}`);
-        const data = await res.json()
-
-        if(data.success === false){
-          setShowListingError(true)
-          return;
-        }
-        setUserListings(data)
-      } catch (error) {
-        setShowListingError(true)
-      }
-  }
-
-  const handleListingDelete = async (listingId) => { 
+  const handleShowListings = async () => {
     try {
-      const res = await fetch(`/api/listing/delete/${listingId}`,{
-        method: 'DELETE'
-      });
-      const data = await res.json()
+      setShowListingError(false);
+      const res = await fetch(`/api/user/listings/${currentUser._id}`);
+      const data = await res.json();
 
-      if(data.success === false){
+      if (data.success === false) {
+        setShowListingError(true);
+        return;
+      }
+      setUserListings(data);
+    } catch (error) {
+      setShowListingError(true);
+    }
+  };
+
+  const handleListingDelete = async (listingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (data.success === false) {
         console.log(data.message);
         return;
       }
 
-      setUserListings((prev) => prev.filter((listing) => listing._id !== listingId))
+      setUserListings((prev) =>
+        prev.filter((listing) => listing._id !== listingId)
+      );
     } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
     }
-  }
+  };
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -228,7 +230,12 @@ export default function Profile() {
           {loading ? "Loading..." : "Update"}
         </button>
 
-        <Link className="bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95" to={"/create-listing"}>Create Listing</Link>
+        <Link
+          className="bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95"
+          to={"/create-listing"}
+        >
+          Create Listing
+        </Link>
       </form>
       <div className="flex justify-between mt-5">
         <span
@@ -247,30 +254,52 @@ export default function Profile() {
         {" "}
         {updateSuccess ? "User is updated successfully " : " "}{" "}
       </p>
-      <button onClick={handleShowListings} className="text-green-700 w-full">Show Listings</button>
-    <p className="text-red-700 mt-5"> {showListingError ? 'Error Showing Listings' : ''} </p>
+      <button onClick={handleShowListings} className="text-green-700 w-full">
+        Show Listings
+      </button>
+      <p className="text-red-700 mt-5">
+        {" "}
+        {showListingError ? "Error Showing Listings" : ""}{" "}
+      </p>
 
-    { userListings && userListings.length > 0 &&
-       <div className="flex flex-col gap-4">
-        <h1 className="text-center mt-7 text-2xl font-semibold">Your Listings</h1>
-       { userListings.map((listings)=>(
-         <div key={listings._id} className="gap-4 border rounded-lg p-3 flex justify-between items-center">
-          <Link to={`/listing/${listings._id}`}>
-            <img className="h-16 w-16 object-contain " src={listings.imageUrls[0]} alt="listing cover" />
-          </Link>
-           <Link className="text-slate-700 font-semibold flex-1 hover:underline truncate" to={`/listing/${listings._id}`}>
-            <p>
-              {listings.name}
-            </p>
-           </Link>
-           <div className="flex flex-col items-center">
-             <button onClick={() => handleListingDelete(listings._id)} className="text-red-700 uppercase">Delete</button>
-             <button className="text-green-700 uppercase">Edit</button>
-           </div>
-         </div>
-       ))}
-       </div>
-    }
+      {userListings && userListings.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h1 className="text-center mt-7 text-2xl font-semibold">
+            Your Listings
+          </h1>
+          {userListings.map((listings) => (
+            <div
+              key={listings._id}
+              className="gap-4 border rounded-lg p-3 flex justify-between items-center"
+            >
+              <Link to={`/listing/${listings._id}`}>
+                <img
+                  className="h-16 w-16 object-contain "
+                  src={listings.imageUrls[0]}
+                  alt="listing cover"
+                />
+              </Link>
+              <Link
+                className="text-slate-700 font-semibold flex-1 hover:underline truncate"
+                to={`/listing/${listings._id}`}
+              >
+                <p>{listings.name}</p>
+              </Link>
+              <div className="flex flex-col items-center">
+                <button
+                  onClick={() => handleListingDelete(listings._id)}
+                  className="text-red-700 uppercase"
+                >
+                  Delete
+                </button>
+                <Link to={`/update-listing/${listings._id}`}>
+                <button className="text-green-700 uppercase">Edit</button>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
